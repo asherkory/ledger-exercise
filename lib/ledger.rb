@@ -1,7 +1,7 @@
 require 'date'
 
 class Ledger
-  attr_accessor :transactions, :accounts
+  attr_accessor :transactions
 
   def initialize( ledger_file )
     @transactions = []
