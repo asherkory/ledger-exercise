@@ -5,6 +5,6 @@ class Transaction
     @date = date
     @source = source
     @destination = destination
-    @amount = amount
+    @amount = amount.to_f
   end
 end

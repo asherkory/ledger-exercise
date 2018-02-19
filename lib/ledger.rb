@@ -12,7 +12,6 @@ class Ledger
     end
   end
 
-  # interaction methods go here
   def balance_by_date( date, account_name )
   end
 
@@ -23,18 +22,26 @@ class Ledger
     transactions = ledger_contents.split( "\n" )
     
     # TODO add more error checking for invalid file formats
+    
     transactions.each do | transaction |
       date, source_account, destination_account, amount = transaction.split( "," )
       parsed_date = parse_date( date )
 
-      transactions << Transaction.new( parsed_date, source_account, destination_account, amount )
-      accounts << source unless accounts.include?( source )
-      accounts << destination unless accounts.include?( destination )
+      unless parsed_date.nil?
+        transactions << Transaction.new( parsed_date, source_account, destination_account, amount )
+        accounts << source unless accounts.include?( source )
+        accounts << destination unless accounts.include?( destination )
+      end
     end
   end
 
   def parse_date( date_string )
-
+    year, month, day = date_string.split( "-" ).map( &:to_i )
+    if Date.valid_date?( year, month, day )
+      Date.strptime( date_string, "%Y-%m-%d" )
+    else
+      puts "Error: invalid transaction date #{ date_string }"
+    end
   end
 
 end
