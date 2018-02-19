@@ -15,9 +15,7 @@ class Ledger
 
   def balance_by_date( date_string, account_name )
     date = parse_date( date_string )
-    if date.nil?
-      puts "Error: invalid date"
-    else
+    unless date.nil?
       # find transactions for the given account, before the given date
       applicable_transactions = transactions.select do | transaction | 
         transaction.name == account_name && transaction.date < date
@@ -30,6 +28,7 @@ class Ledger
         applicable_transactions.reduce do | balance, transaction |
           balance + transaction.amount
         end
+      end
     end
   end
 
@@ -39,15 +38,22 @@ class Ledger
     ledger_contents = File.read( file )
     transactions = ledger_contents.split( "\n" )
     
-    # TODO add more error checking for invalid file formats
+    if transactions.empty?
+      puts "Error: empty ledger file"
+    else
+      transactions.each do | transaction |
+        if transaction.size == 4
+          
+          date, source_account, destination_account, amount = transaction.split( "," )
+          parsed_date = parse_date( date )
 
-    transactions.each do | transaction |
-      date, source_account, destination_account, amount = transaction.split( "," )
-      parsed_date = parse_date( date )
-
-      unless parsed_date.nil?
-        transactions << Transaction.new( parsed_date, source_account, -amount.to_f )
-        transactions << Transaction.new( parsed_date, destination_account, amount.to_f )
+          unless parsed_date.nil?
+            transactions << Transaction.new( parsed_date, source_account, -amount.to_f )
+            transactions << Transaction.new( parsed_date, destination_account, amount.to_f )
+          end
+        else
+          puts "Error: invalid ledger transaction format"
+        end
       end
     end
   end
