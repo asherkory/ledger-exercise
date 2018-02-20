@@ -1,3 +1,4 @@
+require 'pry'
 require 'date'
 
 class Ledger
@@ -26,7 +27,7 @@ class Ledger
       if date.nil?
         puts "Error: invalid date format"
       else
-        
+      
         # find transactions for the given account, before the given date
         applicable_transactions = transactions.select do |transaction|
           transaction[ :name ] == account && transaction[ :date ] < date
@@ -35,9 +36,9 @@ class Ledger
         if applicable_transactions.empty?
           puts "Error: no transactions found for #{ account } before the given date"
         else
-          
+
           # calculate the balance by adding the transaction amounts
-          applicable_transactions.reduce do |balance, transaction|
+          applicable_transactions.reduce(0) do |balance, transaction|
             balance + transaction[ :amount ]
           end
         end
@@ -75,10 +76,8 @@ class Ledger
 
   def parse_date( date_string )
     year, month, day = date_string.split( "-" ).map( &:to_i )
-    if Date.valid_date?( year, month, day )
+    if year && month && day && Date.valid_date?( year, month, day )
       Date.strptime( date_string, "%Y-%m-%d" )
-    else
-      nil
     end
   end
 end
