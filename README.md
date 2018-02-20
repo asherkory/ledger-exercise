@@ -16,7 +16,15 @@ Of course, there's a twist, which is as follows. We'd like to be able to find ou
 
 ### Implementation
 
-TODO
+Create a new ledger from a text file containing ledger transactions: `ledger = Ledger.new(ledger.txt)`
+
+Query for the balance of John's account on a specific date: `ledger.balance("John", "2015-01-01")`
+
+Query for the balance of John's account using a Date object: `ledger.balance("John", Date.today)`
+
+Query for the current balance of John's account: `ledger.current_balance("John")`
+
+Query for the starting balance of John's account: `ledger.balance("John")`
 
 ### Tests
 

@@ -14,10 +14,10 @@ class Ledger
   end
 
   def current_balance( account )
-    balance_by_date( account, Date.today )
+    balance( account, Date.today )
   end
 
-  def balance_by_date( account, given_date = nil )
+  def balance( account, given_date = nil )
     if given_date.nil?
       0
     else

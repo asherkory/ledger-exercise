@@ -1,0 +1,5 @@
+2015-01-16,john,mary,125.00
+2015-01-17,john,supermarket,20.00
+2015-01-17,mary,insurance,100.00
+2015-01-20,john,bob,10.00
+2015-02-01,bob,supermarket,10.00
