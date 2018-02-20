@@ -18,7 +18,7 @@ class Ledger
     unless date.nil?
       # find transactions for the given account, before the given date
       applicable_transactions = transactions.select do | transaction | 
-        transaction.name == account_name && transaction.date < date
+        transaction[ :name ] == account_name && transaction[ :date ] < date
       end
 
       if applicable_transactions.empty?
@@ -26,7 +26,7 @@ class Ledger
       else
         # calculate the balance by adding the transaction amounts
         applicable_transactions.reduce do | balance, transaction |
-          balance + transaction.amount
+          balance + transaction[ :amount ]
         end
       end
     end
@@ -48,8 +48,8 @@ class Ledger
           parsed_date = parse_date( date )
 
           unless parsed_date.nil?
-            transactions << Transaction.new( parsed_date, source_account, -amount.to_f )
-            transactions << Transaction.new( parsed_date, destination_account, amount.to_f )
+            transactions << { date: parsed_date, name: source_account, amount: -amount.to_f }
+            transactions << { date: parsed_date, name: destination_account, amount: amount.to_f }
           end
         else
           puts "Error: invalid ledger transaction format"
@@ -65,17 +65,5 @@ class Ledger
     else
       puts "Error: invalid transaction date #{ date_string }"
     end
-  end
-end
-
-#------------------------------------------------------------------------------------------
-
-class Transaction
-  attr_reader :date, :name, :amount
-
-  def initialize( date, name, amount )
-    @date = date
-    @name = name
-    @amount = amount
   end
 end
