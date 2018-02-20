@@ -16,6 +16,7 @@ class Ledger
   def balance_by_date( date_string, account_name )
     date = parse_date( date_string )
     unless date.nil?
+      
       # find transactions for the given account, before the given date
       applicable_transactions = transactions.select do | transaction | 
         transaction[ :name ] == account_name && transaction[ :date ] < date
@@ -24,6 +25,7 @@ class Ledger
       if applicable_transactions.empty?
         puts "Error: no transactions found for #{ account_name } before #{ date_string }"
       else
+        
         # calculate the balance by adding the transaction amounts
         applicable_transactions.reduce do | balance, transaction |
           balance + transaction[ :amount ]
