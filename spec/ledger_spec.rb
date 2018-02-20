@@ -1,5 +1,6 @@
 require_relative "spec_helper"
 require_relative "../lib/ledger"
+require 'date'
 
 RSpec.describe Ledger do
 
@@ -7,24 +8,29 @@ RSpec.describe Ledger do
     let( :file ) { File.join( File.dirname( __FILE__), "./test_ledger_multiple.txt" ) }
 
     it "correctly displays a starting balance of 0" do
+      expect{ Ledger.new( file ).balance( "john" ) }.to eq( 0 )
     end
 
     it "correctly displays the balance when querying with a given date string" do
+      expect{ Ledger.new( file ).balance( "john", "2015-01-17" ) }.to eq( -125 )
     end
 
     it "correctly displays the balance when querying with a Date object" do
+      let( :date ) { Date.new( 2015, 1, 17 ) }
+      expect{ Ledger.new( file ).balance( "john", date ) }.to eq( -125 )
     end
 
-    it "correctly displays a negative balance" do
-    end
-
-    context "querying a balance with an invalid date" do
-      it "outputs an error message" do
+    context "with invalid balance query paramters" do
+      it "outputs an error message when querying with an invalid date" do
+        expect{ Ledger.new( file ).balance( "mary", "bad_date" ) }.to output( 
+          "Error: invalid date format" 
+        ).to_stdout
       end
-    end
 
-    context "querying a balance with an invalid account name" do
-      it "outputs an error message" do
+      it "outputs an error message querying with an invalid account name" do
+        expect{ Ledger.new( file ).current_balance( "bad_account" ) }.to output( 
+          "Error: no transactions found for bad_account before the given date" 
+        ).to_stdout
       end
     end
   end
@@ -32,20 +38,24 @@ RSpec.describe Ledger do
   context "When ledger file has dates out of chronological order" do
     let( :file ) { File.join( File.dirname( __FILE__), "./test_ledger_order.txt" ) }
 
-    it "correctly displays the balance of the source account" do
+    it "correctly displays the current balance of the first account" do
+      expect{ Ledger.new( file ).current_balance( "john" ) }.to eq( -135.0 )
     end
 
-    it "correctly displays the balance of the destination account" do
+    it "correctly displays the current balance of the second account" do
+      expect{ Ledger.new( file ).current_balance( "mary" ) }.to eq( 115.0 )
     end
   end
 
   context "When ledger file contains transactions with negative amounts" do
     let( :file ) { File.join( File.dirname( __FILE__), "./test_ledger_negative.txt" ) }
 
-    it "correctly displays the balance of the source account" do
+    it "correctly displays the current balance of the source account" do
+      expect{ Ledger.new( file ).current_balance( "insurance" ) }.to eq( 100.0 )
     end
 
-    it "correctly displays the balance of the destination account" do
+    it "correctly displays the current balance of the destination account" do
+      expect{ Ledger.new( file ).current_balance( "mary" ) }.to eq( 25.0 )
     end
   end
 
@@ -53,15 +63,19 @@ RSpec.describe Ledger do
     let( :file ) { File.join( File.dirname( __FILE__), "./test_ledger_one.txt" ) }
 
     it "correctly displays the current balance for the source account" do
+      expect{ Ledger.new( file ).current_balance( "john" ) }.to eq( -125.0 )
     end
 
     it "correctly displays the current balance for the destination account" do
+      expect{ Ledger.new( file ).current_balance( "mary" ) }.to eq( 125.0 )
     end
 
     it "correctly displays a starting balance of 0 for the source account" do
+      expect{ Ledger.new( file ).balance( "john" ) }.to eq( 0 )
     end
 
     it "correctly displays a starting balance of 0 for the destination account" do
+      expect{ Ledger.new( file ).balance( "mary" ) }.to eq( 0 )
     end
   end
 
@@ -69,19 +83,17 @@ RSpec.describe Ledger do
     let( :file ) { File.join( File.dirname( __FILE__), "./test_ledger_combination.txt" ) }
 
     it "ignores the invalid or blank lines when calculating a balance" do
-      expect{ Ledger.new( file ).current_balance( "John" ) }.to eq( 155 )
+      expect{ Ledger.new( file ).current_balance( "john" ) }.to eq( 155.0 )
     end
 
-    context "for a line with invalid separators" do
-      it "outputs an error message" do
+    context "with invalid ledger data" do
+      it "outputs an error message for a line with invalid separators" do
         expect{ Ledger.new( file ) }.to output( 
           "Error: invalid ledger transaction format" 
         ).to_stdout
       end
-    end
-
-    context "for a line with an invalid date format" do
-      it "outputs an error message" do
+    
+      it "outputs an error message for a line with an invalid date format" do
         expect{ Ledger.new( file ) }.to output( 
           "Error: invalid transaction date" 
         ).to_stdout
@@ -98,8 +110,8 @@ RSpec.describe Ledger do
 
     context "when asked for an account balance" do
       it "outputs an error message and does not crash" do
-        expect{ Ledger.new( file ).current_balance( "John" ) }.to output( 
-          "Error: no transactions found for John before the given date" 
+        expect{ Ledger.new( file ).current_balance( "john" ) }.to output( 
+          "Error: no transactions found for john before the given date" 
         ).to_stdout
       end
     end
@@ -112,8 +124,8 @@ RSpec.describe Ledger do
 
     context "when asked for an account balance" do
       it "outputs an error message and does not crash" do
-        expect{ Ledger.new( "fake_file.txt" ).current_balance( "John" ) }.to output( 
-          "Error: no transactions found for John before the given date" 
+        expect{ Ledger.new( "fake_file.txt" ).current_balance( "john" ) }.to output( 
+          "Error: no transactions found for john before the given date" 
         ).to_stdout
       end
     end
