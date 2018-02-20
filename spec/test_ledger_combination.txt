@@ -1,8 +1,9 @@
 2015-01-16,john,mary,125.00
 invalid_date,john,zoo,15.00
 2015-01-17,john,supermarket,20.00
+
 2015-01-17,mary,insurance,100.00
-2015-01-19,henry,fred,invalid_amount
+2015-01-19,henry,john,invalid_amount
 2015-01-20,john,bob,10.00
 2015-02-01,bob,supermarket,10.00
-2015-02-02;henry;fred;30.00
+2015-02-02;henry;john;30.00

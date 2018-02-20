@@ -33,7 +33,7 @@ class Ledger
         end
 
         if applicable_transactions.empty?
-          puts "Error: no transactions found for #{ account } before #{ date_string }"
+          puts "Error: no transactions found for #{ account } before the given date"
         else
           
           # calculate the balance by adding the transaction amounts
