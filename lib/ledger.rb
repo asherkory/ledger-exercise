@@ -2,9 +2,11 @@ require 'date'
 
 class Ledger
   attr_accessor :transactions
+  attr_writer   :accounts
 
   def initialize( ledger_file )
     @transactions = []
+    @accounts = []
     
     if File.file?( ledger_file )
       parse_ledger( ledger_file )
@@ -13,52 +15,34 @@ class Ledger
     end
   end
 
-  # TODO add starting_balance and current_balance methods
-
-  def balance_by_date( date_string, account_name )
-    date = parse_date( date_string )
-    unless date.nil?
-      
-      # find transactions for the given account, before the given date
-      applicable_transactions = transactions.select do | transaction | 
-        transaction[ :name ] == account_name && transaction[ :date ] < date
-      end
-
-      if applicable_transactions.empty?
-        puts "Error: no transactions found for #{ account_name } before #{ date_string }"
-      else
-        
-        # calculate the balance by adding the transaction amounts
-        applicable_transactions.reduce do | balance, transaction |
-          balance + transaction[ :amount ]
-        end
-      end
-    end
+  def accounts( name )
+    @accounts.select { |account| account.name == name }
   end
 
   private
 
   def parse_ledger( file )
     ledger_contents = File.read( file )
-    transactions = ledger_contents.split( "\n" )
+    lines = ledger_contents.split( "\n" )
     
-    if transactions.empty?
+    if lines.empty?
       puts "Error: empty ledger file"
     else
-      transactions.each do | transaction |
-        if transaction.size == 4
+      lines.each do |line|
+        date, source_account, destination_account, amount = line.split( "," )
+        
+        if date.nil? || source_account.nil? || destination_account.nil? || amount.nil?
+          puts "Error: invalid ledger transaction format"
+        else
+          accounts << Account.new( source_account ) unless accounts( source_account )
+          accounts << Account.new( destination_account ) unless accounts( destination_account )
           
-          date, source_account, destination_account, amount = transaction.split( "," )
           parsed_date = parse_date( date )
 
-          # TODO add validation for amount
-
           unless parsed_date.nil?
-            transactions << { date: parsed_date, name: source_account, amount: -amount.to_f }
-            transactions << { date: parsed_date, name: destination_account, amount: amount.to_f }
+            transactions << Transaction.new( parsed_date, source_account, -amount.to_f )
+            transactions << Transaction.new( parsed_date, destination_account, amount.to_f )
           end
-        else
-          puts "Error: invalid ledger transaction format"
         end
       end
     end
@@ -72,4 +56,59 @@ class Ledger
       puts "Error: invalid transaction date #{ date_string }"
     end
   end
+
+  #-------------------------------------------------------------------
+
+  class Account
+    attr_reader :name
+
+    def initialize( name )
+      @name = name
+    end
+
+    def current_balance
+      account_transactions = transactions.select { |transaction| transaction.account == self } # TODO extract?
+      calculate_balance( account_transactions )
+    end
+
+    # if no date is given, return the starting balance of 0
+    def balance( date_string = nil )
+      if date_string.nil?
+        0
+      else
+        date = parse_date( date_string )
+        unless date.nil?
+          
+          # find transactions for the given account, before the given date
+          applicable_transactions = transactions.select do |transaction|
+            transaction.account == self && transaction.date < date
+          end
+          
+          calculate_balance( applicable_transactions )
+        end
+      end
+    end
+
+    private
+
+    def calculate_balance( transactions )
+      balance = applicable_transactions.reduce do |balance, transaction|
+        balance + transaction.amount
+      end
+      balance.nil? ? 0 : balance # TODO make cleaner
+    end
+  end
+
+  #-------------------------------------------------------------------
+
+  class Transaction
+    attr_reader :date, :account, :amount
+
+    def initialize( date, account, amount )
+      @date = date
+      @account = account
+      @amount = amount
+    end
+  end
+
 end

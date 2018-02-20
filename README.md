@@ -18,6 +18,14 @@ Of course, there's a twist, which is as follows. We'd like to be able to find ou
 
 TODO
 
+Create a new ledger from a text file containing ledger transactions: `ledger = Ledger.new(ledger.txt)`
+
+Query for the balance of John's account on a specific date: `ledger.accounts("John").balance("2015-01-01")`
+
+Query for the current balance of John's account: `ledger.accounts("John").current_balance`
+
+Query for the starting balance of John's account: `ledger.accounts("John").balance`
+
 ### Tests
 
 TODO
