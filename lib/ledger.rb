@@ -13,6 +13,8 @@ class Ledger
     end
   end
 
+  # TODO add starting_balance and current_balance methods
+
   def balance_by_date( date_string, account_name )
     date = parse_date( date_string )
     unless date.nil?
@@ -48,6 +50,8 @@ class Ledger
           
           date, source_account, destination_account, amount = transaction.split( "," )
           parsed_date = parse_date( date )
+
+          # TODO add validation for amount
 
           unless parsed_date.nil?
             transactions << { date: parsed_date, name: source_account, amount: -amount.to_f }
