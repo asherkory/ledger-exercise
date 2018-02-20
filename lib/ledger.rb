@@ -13,24 +13,33 @@ class Ledger
     end
   end
 
-  # TODO add starting_balance and current_balance methods
+  def current_balance( account )
+    balance_by_date( account, Date.today )
+  end
 
-  def balance_by_date( date_string, account_name )
-    date = parse_date( date_string )
-    unless date.nil?
+  def balance_by_date( account, given_date = nil )
+    if given_date.nil?
+      0
+    else
+      given_date.is_a?( Date ) ? date = given_date : date = parse_date( given_date )
       
-      # find transactions for the given account, before the given date
-      applicable_transactions = transactions.select do | transaction | 
-        transaction[ :name ] == account_name && transaction[ :date ] < date
-      end
-
-      if applicable_transactions.empty?
-        puts "Error: no transactions found for #{ account_name } before #{ date_string }"
+      if date.nil?
+        puts "Error: invalid date format"
       else
         
-        # calculate the balance by adding the transaction amounts
-        applicable_transactions.reduce do | balance, transaction |
-          balance + transaction[ :amount ]
+        # find transactions for the given account, before the given date
+        applicable_transactions = transactions.select do |transaction|
+          transaction[ :name ] == account && transaction[ :date ] < date
+        end
+
+        if applicable_transactions.empty?
+          puts "Error: no transactions found for #{ account } before #{ date_string }"
+        else
+          
+          # calculate the balance by adding the transaction amounts
+          applicable_transactions.reduce do |balance, transaction|
+            balance + transaction[ :amount ]
+          end
         end
       end
     end
@@ -40,25 +49,25 @@ class Ledger
 
   def parse_ledger( file )
     ledger_contents = File.read( file )
-    transactions = ledger_contents.split( "\n" )
+    lines = ledger_contents.split( "\n" )
     
-    if transactions.empty?
+    if lines.empty?
       puts "Error: empty ledger file"
     else
-      transactions.each do | transaction |
-        if transaction.size == 4
-          
-          date, source_account, destination_account, amount = transaction.split( "," )
+      lines.each do |line|
+        date, source_account, destination_account, amount = line.split( "," )
+
+        if date.nil? || source_account.nil? || destination_account.nil? || amount.nil?
+          puts "Error: invalid ledger transaction format"
+        else
           parsed_date = parse_date( date )
 
-          # TODO add validation for amount
-
-          unless parsed_date.nil?
+          if parsed_date.nil?
+            puts "Error: invalid transaction date"
+          else
             transactions << { date: parsed_date, name: source_account, amount: -amount.to_f }
             transactions << { date: parsed_date, name: destination_account, amount: amount.to_f }
           end
-        else
-          puts "Error: invalid ledger transaction format"
         end
       end
     end
@@ -69,7 +78,7 @@ class Ledger
     if Date.valid_date?( year, month, day )
       Date.strptime( date_string, "%Y-%m-%d" )
     else
-      puts "Error: invalid transaction date #{ date_string }"
+      nil
     end
   end
 end
