@@ -28,4 +28,6 @@ Query for the starting balance of John's account: `ledger.balance("john")`
 
 ### Tests
 
-TODO
+Install the dependencies in the Gemfile: `bundle install`
+
+Run the test suite: `bundle exec rspec spec`
