@@ -92,7 +92,7 @@ class Ledger
     private
 
     def calculate_balance( transactions )
-      balance = applicable_transactions.reduce do |balance, transaction|
+      balance = applicable_transactions.reduce(0) do |balance, transaction|
         balance + transaction.amount
       end
       balance.nil? ? 0 : balance # TODO make cleaner
