@@ -1,4 +1,3 @@
-require 'pry'
 require 'date'
 
 class Ledger
@@ -20,12 +19,13 @@ class Ledger
 
   def balance(account, given_date = nil)
     if given_date.nil?
-      0
+      0.0
     else
       given_date.is_a?(Date) ? date = given_date : date = parse_date(given_date)
       
       if date.nil?
         puts "Error: invalid date format"
+      
       else
       
         applicable_transactions = transactions.select do |transaction|

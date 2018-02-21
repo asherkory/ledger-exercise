@@ -8,7 +8,7 @@ RSpec.describe Ledger do
     let(:file) { File.join(File.dirname(__FILE__), "./test_ledger_multiple.txt") }
 
     it "correctly displays a starting balance of 0" do
-      expect(Ledger.new(file).balance("john")).to eq(0)
+      expect(Ledger.new(file).balance("john")).to eq(0.0)
     end
 
     it "correctly displays the balance when querying with a given date string" do
@@ -71,11 +71,11 @@ RSpec.describe Ledger do
     end
 
     it "correctly displays a starting balance of 0 for the source account" do
-      expect(Ledger.new(file).balance("john")).to eq(0)
+      expect(Ledger.new(file).balance("john")).to eq(0.0)
     end
 
     it "correctly displays a starting balance of 0 for the destination account" do
-      expect(Ledger.new(file).balance("mary")).to eq(0)
+      expect(Ledger.new(file).balance("mary")).to eq(0.0)
     end
   end
 
